@@ -78,18 +78,29 @@ function redraw() {
 }
 
 document.onkeydown = function(e) {
-	console.log(playerX, xTerrainSize);
-	if (e.keyCode == 39 && playerX < (xTerrainSize - 1)) {
-		playerX += 1;
-	} else if (e.keyCode == 37 && playerX > 0) {
-		playerX -= 1;
-	} else if (e.keyCode == 40 && playerY < (yTerrainSize - 1)) {
-		playerY += 1;
-	} else if (e.keyCode == 38 && playerY > 0) {
-		playerY -= 1;
+	var targetX = playerX;
+	var targetY = playerY;
+
+	if (e.keyCode == 39) {
+		targetX += 1;
+	} else if (e.keyCode == 37) {
+		targetX -= 1;
+	} else if (e.keyCode == 40) {
+		targetY += 1;
+	} else if (e.keyCode == 38) {
+		targetY -= 1;
 	}
 
-	redraw();
+	// Can we even go here?
+
+	if (targetX >= 0 && targetX < xTerrainSize &&
+		targetY >= 0 && targetY < yTerrainSize &&
+		terrain[targetX][targetY] != colorTree) {
+
+		playerX = targetX;
+		playerY = targetY;
+		redraw();
+	}
 };
 
 redraw();
