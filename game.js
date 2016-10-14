@@ -8,6 +8,9 @@ var yTerrainSize = 100;
 var playerX = 10;
 var playerY = 10;
 
+var enemyX = 48;
+var enemyY = 70;
+
 // Camera is centered around player
 var xCameraSize = 21;
 var yCameraSize = 21;
@@ -23,7 +26,8 @@ var colorTree = 'brown';
 var colorGrass1 = 'DarkGreen';
 var colorGrass2 = 'green';
 var colorSand = 'LemonChiffon';
-var colorPlayer = 'red';
+var colorPlayer = 'lime';
+var colorEnemy = 'red';
 
 var ctx = canvas.getContext("2d");
 
@@ -55,6 +59,22 @@ function generateTerrain() {
 	return terrain;
 }
 
+function terrainToGraph(t) {
+	var g = []
+	for (var i=0; i<terrain.length; i++) {
+		var row = [];
+		for (var j=0; j<terrain[0].length; j++) {
+			if (terrain[i][j] == colorTree) {
+				row.push(0);
+			} else {
+				row.push(1);
+			}
+		}
+		g.push(row);
+	}
+	return new Graph(g);
+}
+
 var terrain = generateTerrain();
 
 function redraw() {
@@ -66,6 +86,10 @@ function redraw() {
 
 			if (terrainX == playerX && terrainY == playerY) {
 				ctx.fillStyle = colorPlayer;
+
+			} else if (terrainX == enemyX && terrainY == enemyY) {
+				ctx.fillStyle = colorEnemy;
+
 			} else if (terrainX >= 0 && terrainY >= 0 && terrainX < xTerrainSize && terrainY < yTerrainSize) {
 				ctx.fillStyle = terrain[terrainX][terrainY];
 			} else {
@@ -78,6 +102,8 @@ function redraw() {
 }
 
 document.onkeydown = function(e) {
+	// Where are we trying to go?
+
 	var targetX = playerX;
 	var targetY = playerY;
 
@@ -92,13 +118,24 @@ document.onkeydown = function(e) {
 	}
 
 	// Can we even go here?
-
 	if (targetX >= 0 && targetX < xTerrainSize &&
 		targetY >= 0 && targetY < yTerrainSize &&
 		terrain[targetX][targetY] != colorTree) {
 
+		// Yes we can!
 		playerX = targetX;
 		playerY = targetY;
+
+		// Move the enemy
+		var g = terrainToGraph(terrain);
+		var start = g.grid[enemyX][enemyY];
+		var end = g.grid[playerX][playerY];
+		var path = astar.search(g, start, end);
+		var enemyTarget = path[0];
+
+		enemyX = enemyTarget.x;
+		enemyY = enemyTarget.y;
+
 		redraw();
 	}
 };
